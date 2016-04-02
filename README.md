@@ -12,9 +12,8 @@ The app is very barebones, compared to Uber app on Apple Watch or Lyft on Androi
 
 ## Screenshots:
 
-![](https://i.imgur.com/I41FKRP.png)
-
-![](https://i.imgur.com/Y9dttnp.png)
+| ![](http://i.imgur.com/I41FKRP.png?1) | ![](http://i.imgur.com/I41FKRP.png?1) |
+|--------------------------------------|--------------------------------------|
 
 ## Libraries:
 
