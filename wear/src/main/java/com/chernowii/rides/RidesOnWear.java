@@ -2,8 +2,11 @@ package com.chernowii.rides;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.wearable.activity.ConfirmationActivity;
@@ -47,9 +50,9 @@ public class RidesOnWear extends Activity implements GoogleApiClient.ConnectionC
     Boolean pickup_ready=false;
     Boolean dropoff_ready=false;
 
-   public TextView pickupText;
-   public TextView dropoffText;
-
+    public TextView pickupText;
+    public TextView dropoffText;
+    public TextView priceText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +62,8 @@ public class RidesOnWear extends Activity implements GoogleApiClient.ConnectionC
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+        registerReceiver(getPrice, new IntentFilter("PRICERECEIVED"));
+
         pickupText= (TextView)findViewById(R.id.pickup_text);
         dropoffText=(TextView)findViewById(R.id.dropoff_text);
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
@@ -167,6 +172,9 @@ public class RidesOnWear extends Activity implements GoogleApiClient.ConnectionC
                             sendtophone("/dropoff-raw",spokenText);
                             dropoff_ready=true;
                             dropoffText.setText(spokenText);
+                            if(pickup_ready && dropoff_ready){
+                                sendtophone("/price-estimate","null");
+                            }
                         }
                     })
                     .setNegativeButton("repeat", new DialogInterface.OnClickListener() {
@@ -208,6 +216,15 @@ public class RidesOnWear extends Activity implements GoogleApiClient.ConnectionC
         }
 
     }
+    private BroadcastReceiver getPrice= new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            priceText= (TextView)findViewById(R.id.price_text);
+            priceText.setText("Est. Price: "+ intent.getExtras().getString("price_of_ride"));
+
+        }
+    };
     @Override
     protected void onStart() {
         super.onStart();

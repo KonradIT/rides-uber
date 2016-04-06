@@ -3,20 +3,38 @@ package com.chernowii.rides;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Bundle;
 import android.text.Layout;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.ecommerce.Product;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
+import com.neno0o.ubersdk.Endpoints.Models.Prices.Price;
+import com.neno0o.ubersdk.Endpoints.Models.Prices.Prices;
+import com.neno0o.ubersdk.Uber;
 import com.uber.sdk.android.rides.RequestButton;
 import com.uber.sdk.android.rides.RideParameters;
 import com.uber.sdk.android.rides.UberButton;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 /**
@@ -34,9 +52,11 @@ public class UberWearListener extends WearableListenerService {
     String dropoffShortName = "";
     String dropoffAddress = "";
     Boolean pickup_custom=true;
+    GoogleApiClient mGoogleApiClient;
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         super.onMessageReceived(messageEvent);
+
 
         if (messageEvent.getPath().equals("/confirm-ride")) {
 
@@ -58,7 +78,8 @@ public class UberWearListener extends WearableListenerService {
             startUberButton.putExtra("dropoff_short_name", dropoffShortName);
             startUberButton.putExtra("dropoff_address", dropoffAddress);
             startUberButton.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startUberButton);        }
+            startActivity(startUberButton);
+        }
         if (messageEvent.getPath().equals("/pickup-raw")) {
             pickup_custom = true;
             Geocoder geocoder = new Geocoder(UberWearListener.this, Locale.US);
@@ -100,6 +121,78 @@ public class UberWearListener extends WearableListenerService {
                 e.printStackTrace();
             }
         }
+        if (messageEvent.getPath().equals("/price-estimate")) {
+            Uber.getInstance().getUberAPIService().getPriceEstimates(pickupLocationLatitude,
+                    pickupLocationLongitude,
+                    dropoffLocationLatitude,
+                    dropoffLocationLongitude,
+                    new Callback<Prices>() {
+                        @Override
+                        public void success(final Prices prices, Response response) {
+                            final String[] price = prices.getPrices().toArray(new String[prices.getPrices().size()]);
+                            mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                                    .addApi(Wearable.API)
+                                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                                        @Override
+                                        public void onConnected(Bundle bundle) {
+                                            getNodes("/price",price[0]);
+                                        }
+                                        @Override
+                                        public void onConnectionSuspended(int cause) {
+
+                                        }
+                                    }).build();
+                            mGoogleApiClient.connect();
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+
+                        }
+                    });
+
+        }
+    }
+        private void getNodes(final String path, final String data) {
+            Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                        @Override
+                        public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
+                            HashSet<String> results = new HashSet<String>();
+                            for (Node node : getConnectedNodesResult.getNodes()) {
+                                results.add(node.getId());
+                            }
+                            sendMessageApi(results,path, data);
+                        }
+                    }
+            );
+        }
+
+        private void sendMessageApi(Collection<String> nodes, String path, String data) {
+            for (String node : nodes) {
+                Wearable.MessageApi.sendMessage(
+                        mGoogleApiClient, node, path, data.getBytes()).setResultCallback(
+                        new ResultCallback<MessageApi.SendMessageResult>() {
+                            @Override
+                            public void onResult(MessageApi.SendMessageResult sendMessageResult) {
+                                if (!sendMessageResult.getStatus().isSuccess()) {
+
+
+                                } else {
+
+                                    try {
+                                        finalize();
+                                    } catch (Throwable throwable) {
+                                        throwable.printStackTrace();
+                                    }
+                                }
+
+                            }
+                        }
+                );
+            }
+        }
+
 
     }
-}
+

@@ -19,6 +19,8 @@ The app is very barebones, compared to Uber app on Apple Watch or Lyft on Androi
 
 Uber Android SDK (The button): https://github.com/uber/rides-android-sdk/
 
+Neno0o's nice Uber SDK which provides price/time estimation and uber products: https://github.com/Neno0o/Uber-Android-SDK
+
 Google's Design Support library and Android Wear library (synced to Google Play Services)
 
 ## Downloads:

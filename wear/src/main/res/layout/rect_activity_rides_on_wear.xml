@@ -131,6 +131,14 @@
                         android:fontFamily="sans-serif-light"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
+                        android:text=""
+                        android:id="@+id/price_text"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"/>
+                    <TextView
+                        android:fontFamily="sans-serif-light"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
                         android:text="Tap the send button to confirm the ride"
                         android:textColor="@color/black"
                         android:textSize="14sp"/>

@@ -33,5 +33,6 @@ dependencies {
     compile 'com.android.support:design:23.2.1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.uber.sdk:rides-android:0.1.0'
+    compile 'com.neno0o.ubersdk:ubersdk:0.2'
 
 }
