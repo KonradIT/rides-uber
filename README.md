@@ -25,6 +25,6 @@ Google's Design Support library and Android Wear library (synced to Google Play 
 
 ## Downloads:
 
-Google Play: 
+Google Play: https://play.google.com/store/apps/details?id=com.chernowii.rides
 
 Releases on GitHub: 
