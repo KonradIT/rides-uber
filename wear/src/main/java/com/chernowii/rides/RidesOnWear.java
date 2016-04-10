@@ -111,15 +111,10 @@ public class RidesOnWear extends Activity implements GoogleApiClient.ConnectionC
                 Confirm_Ride.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(pickup_ready && dropoff_ready) {
-                            sendtophone("/confirm-ride", "null");
-                            Intent intent = new Intent(RidesOnWear.this, ConfirmationActivity.class);
-                            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.OPEN_ON_PHONE_ANIMATION);
-                            startActivity(intent);
-                        }
-                        else{
-                            Toast.makeText(getApplicationContext(),"Pickup/dropoff location missing!",Toast.LENGTH_SHORT).show();
-                        }
+                        sendtophone("/confirm-ride", "null");
+                        Intent intent = new Intent(RidesOnWear.this, ConfirmationActivity.class);
+                        intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.OPEN_ON_PHONE_ANIMATION);
+                        startActivity(intent);
                     }
                 });
 

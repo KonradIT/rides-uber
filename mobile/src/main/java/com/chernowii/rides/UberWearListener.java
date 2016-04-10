@@ -1,5 +1,6 @@
 package com.chernowii.rides;
 
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -21,6 +22,7 @@ import com.google.android.gms.wearable.WearableListenerService;
 import com.neno0o.ubersdk.Endpoints.Models.Prices.Price;
 import com.neno0o.ubersdk.Endpoints.Models.Prices.Prices;
 import com.neno0o.ubersdk.Uber;
+import com.squareup.okhttp.Response;
 import com.uber.sdk.android.rides.RequestButton;
 import com.uber.sdk.android.rides.RideParameters;
 import com.uber.sdk.android.rides.UberButton;
@@ -34,7 +36,6 @@ import java.util.Locale;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 /**
@@ -122,76 +123,78 @@ public class UberWearListener extends WearableListenerService {
             }
         }
         if (messageEvent.getPath().equals("/price-estimate")) {
-            Uber.getInstance().getUberAPIService().getPriceEstimates(pickupLocationLatitude,
-                    pickupLocationLongitude,
-                    dropoffLocationLatitude,
-                    dropoffLocationLongitude,
+            /*
+        }
+            Uber.getInstance().getUberAPIService().getPriceEstimates(37.7786,
+                    122.3893,
+                    37.7944,
+                    122.3958,
                     new Callback<Prices>() {
                         @Override
-                        public void success(final Prices prices, Response response) {
-                            final String[] price = prices.getPrices().toArray(new String[prices.getPrices().size()]);
-                            mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                                    .addApi(Wearable.API)
-                                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                                        @Override
-                                        public void onConnected(Bundle bundle) {
-                                            getNodes("/price",price[0]);
-                                        }
-                                        @Override
-                                        public void onConnectionSuspended(int cause) {
+                        public void success(Prices prices, retrofit.client.Response response) {
+                            List<Price> PriceList = prices.getPrices();
+                            Toast.makeText(getApplicationContext(),"Price: " + PriceList.get(0),Toast.LENGTH_SHORT).show();
+                            */
 
-                                        }
-                                    }).build();
-                            mGoogleApiClient.connect();
-                        }
-
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                         @Override
-                        public void failure(RetrofitError error) {
+                        public void onConnected(Bundle bundle) {
+                            sendMessage();
+                        }
+                        @Override
+                        public void onConnectionSuspended(int cause) {
 
                         }
-                    });
+                    }).build();
+            mGoogleApiClient.connect();
 
         }
     }
-        private void getNodes(final String path, final String data) {
-            Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
-                    new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+    private void getNodes() {
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
+                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
+                        HashSet<String> results = new HashSet<String>();
+                        for (Node node : getConnectedNodesResult.getNodes()) {
+                            results.add(node.getId());
+                        }
+                        sendMessageApi(results);
+                    }
+                }
+        );
+    }
+
+    private void sendMessageApi(Collection<String> nodes) {
+        for (String node : nodes) {
+            Wearable.MessageApi.sendMessage(
+                    mGoogleApiClient, node, "/price", "REKT".getBytes()).setResultCallback(
+                    new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
-                        public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
-                            HashSet<String> results = new HashSet<String>();
-                            for (Node node : getConnectedNodesResult.getNodes()) {
-                                results.add(node.getId());
+                        public void onResult(MessageApi.SendMessageResult sendMessageResult) {
+                            if (!sendMessageResult.getStatus().isSuccess()) {
+
+
+                            } else {
+
+                                try {
+                                    finalize();
+                                } catch (Throwable throwable) {
+                                    throwable.printStackTrace();
+                                }
                             }
-                            sendMessageApi(results,path, data);
+
                         }
                     }
             );
         }
+    }
 
-        private void sendMessageApi(Collection<String> nodes, String path, String data) {
-            for (String node : nodes) {
-                Wearable.MessageApi.sendMessage(
-                        mGoogleApiClient, node, path, data.getBytes()).setResultCallback(
-                        new ResultCallback<MessageApi.SendMessageResult>() {
-                            @Override
-                            public void onResult(MessageApi.SendMessageResult sendMessageResult) {
-                                if (!sendMessageResult.getStatus().isSuccess()) {
-
-
-                                } else {
-
-                                    try {
-                                        finalize();
-                                    } catch (Throwable throwable) {
-                                        throwable.printStackTrace();
-                                    }
-                                }
-
-                            }
-                        }
-                );
-            }
-        }
+    private void sendMessage() {
+        getNodes();
+    }
 
 
     }

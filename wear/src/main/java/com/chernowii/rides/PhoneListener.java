@@ -2,6 +2,7 @@ package com.chernowii.rides;
 
 import android.content.Intent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
@@ -15,10 +16,7 @@ public class PhoneListener extends WearableListenerService {
         super.onMessageReceived(messageEvent);
         if(messageEvent.getPath().equals("/price")){
 
-            Intent i = new Intent("PRICERECEIVED");
-            i.putExtra("price_of_ride",messageEvent.getData());
-
-            sendBroadcast(i);
+            Toast.makeText(getApplicationContext(),messageEvent.getData().toString(),Toast.LENGTH_SHORT).show();
         }
     }
 }
