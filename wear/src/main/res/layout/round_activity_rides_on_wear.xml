@@ -23,8 +23,7 @@
             <android.support.wearable.view.CardFrame
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
-                android:id="@+id/pickup_card"
-                android:layout_marginTop="15dp">
+                android:id="@+id/pickup_card">
 
                 <LinearLayout
                     android:layout_height="wrap_content"
@@ -42,6 +41,7 @@
                         android:fontFamily="sans-serif-light"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
+                        android:id="@+id/pickup_text"
                         android:text="No pickup location specified."
                         android:textColor="@color/black"
                         android:textSize="14sp"/>
@@ -91,6 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="No dropoff location specified."
+                        android:id="@+id/dropoff_text"
                         android:textColor="@color/black"
                         android:textSize="14sp"/>
                     <RelativeLayout
@@ -113,8 +114,7 @@
             <android.support.wearable.view.CardFrame
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
-                android:id="@+id/confirm_card"
-                android:layout_marginBottom="30dp">
+                android:id="@+id/confirm_card">
 
                 <LinearLayout
                     android:layout_height="wrap_content"
@@ -128,6 +128,14 @@
                         android:text="Confirm ride:"
                         android:textColor="@color/black"
                         android:textSize="20sp"/>
+                    <TextView
+                        android:fontFamily="sans-serif-light"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text=""
+                        android:id="@+id/price_text"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"/>
                     <TextView
                         android:fontFamily="sans-serif-light"
                         android:layout_height="wrap_content"
@@ -147,7 +155,8 @@
                             android:src="@android:drawable/ic_menu_send"
                             android:background="#ffffff"
                             android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true" />
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginBottom="20dp" />
                     </RelativeLayout>
                 </LinearLayout>
 
